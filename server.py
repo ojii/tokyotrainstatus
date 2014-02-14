@@ -271,8 +271,8 @@ class HttpServer(ServerHttpProtocol):
 
 class App(object):
     url = 'http://transit.loco.yahoo.co.jp/traininfo/area/4/'
-    _index_page_html = ''
-    index_page_length = 0
+    _index_page_html = 'Restarting...'
+    index_page_length = len(_index_page_html)
 
     def __init__(self, template_path, static_dir):
         self.event_loop = asyncio.get_event_loop()
@@ -287,7 +287,6 @@ class App(object):
             self.static_files['/{}'.format(rel_path)] = data
 
     def run(self, host, port):
-        self.event_loop.run_until_complete(self.update_index_loop())
         self.event_loop.run_until_complete(
             self.event_loop.create_server(
                 lambda: HttpServer(app=self, loop=self.event_loop),
@@ -296,6 +295,7 @@ class App(object):
             )
         )
         print('Running on {}:{}'.format(host, port))
+        self.event_loop.run_until_complete(self.update_index_loop())
         try:
             self.event_loop.run_forever()
         except KeyboardInterrupt:
