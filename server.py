@@ -337,7 +337,7 @@ def run():
     static_dir = os.path.join(this_dir, 'static')
     app = App(template_path, static_dir)
     app.run(
-        os.environ.get('BIND_HOST', 'localhost'),
+        os.environ.get('BIND_HOST', '0.0.0.0'),
         int(os.environ.get('PORT', 8000))
     )
 
