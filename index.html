@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Tokyo Train Status</title>
+
+        <!-- Bootstrap -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+          <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <h1>Troubled Tokyo Train Lines</h1>
+        {% for info in data %}
+            <div id="{{  info.id }}" class="row {% if info.level == 2 %}bg-danger{% elif info.level == 1 %}bg-success{% endif %}">
+                <div class="col-md-4">
+                    <h2>
+                        <span class="glyphicon {% if info.level == 2 %}glyphicon-remove-sign{% elif info.level == 1 %}glyphicon-exlamation-sign{% else %}glyphicon-ok-sign{% endif %}"></span>
+                        {{ info.line_en }}
+                    </h2>
+                </div>
+                <div class="col-md-4"><strong>{{ info.status_en }}</strong></div>
+                <div class="col-md-4">{{ info.more }}</div>
+            </div>
+        {% if not loop.last %}<hr />{% endif %}
+        {% else %}
+            No information available at this moment, sorry.
+        {% endfor %}
+    </body>
+</html>
