@@ -28,6 +28,10 @@
         h2.innerText = info.line_en;
         wrapper.appendChild(h2);
 
+        var janame = document.createElement('small');
+        janame.innerText = info.line;
+        h2.appendChild(janame);
+
         var status = document.createElement('div');
         status.setAttribute('class', 'alert alert-danger');
         wrapper.appendChild(status);
