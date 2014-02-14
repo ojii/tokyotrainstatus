@@ -19,7 +19,7 @@
     <body>
         <h1>Troubled Tokyo Train Lines <small id="update-time">{{ updated }}</small></h1>
         <div class="alert alert-success hidden" id="no-issues">No issues reported</div>
-        <div class="alert alert-warning" id="no-connection">No connection, please wait...</div>
+        <div class="alert alert-warning{% if live %} hidden{% endif %}" id="no-connection">No connection, please wait...</div>
         <div id="list">
             {% for info in lines %}
                 <div class="row" id="{{  info.id }}">
