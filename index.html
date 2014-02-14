@@ -17,12 +17,16 @@
         <![endif]-->
     </head>
     <body>
-        <h1>Troubled Tokyo Train Lines <small id="update-time">{{ updated }}</small></h1>
-        <div class="alert alert-success hidden" id="no-issues">No issues reported</div>
-        <div class="alert alert-warning{% if live %} hidden{% endif %}" id="no-connection">No connection, please wait...</div>
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <h1>Troubled Tokyo Train Lines <small id="update-time">{{ updated }}</small></h1>
+                <div class="alert alert-success hidden" id="no-issues">No issues reported</div>
+                <div class="alert alert-warning{% if live %} hidden{% endif %}" id="no-connection">No connection, please wait...</div>
+            </div>
+        </div>
         <div id="list">
             {% for info in lines %}
-                <div class="container-fluid" id="{{  info.id }}">
+                <div class="container-fluid list-item" id="{{  info.id }}">
                     <div class="col-md-12">
                         <h2 id="{{ info.id }}-name">
                             {{ info.line_en }}

@@ -90,7 +90,7 @@
                                 list.appendChild(ele);
                             } else{
                                 order.insert(index, item.line_en);
-                                list.insertChildAfter(document.getElementsByClassName('container-fluid')[index], ele);
+                                list.insertChildAfter(document.getElementsByClassName('list-item')[index], ele);
                             }
                         }
                     }
