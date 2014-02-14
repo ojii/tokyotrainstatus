@@ -16,7 +16,7 @@
 
     function template(info){
         var row = document.createElement('div');
-        row.setAttribute('class', 'container-fluid');
+        row.setAttribute('class', 'list-item');
         row.setAttribute('id', info.id);
 
         var wrapper = document.createElement('div');
@@ -65,7 +65,7 @@
         var request = new XMLHttpRequest();
         request.onreadystatechange = function(){
             if (request.readyState === 4 && request.status === 200) {
-                old = document.getElementsByClassName('container-fluid');
+                old = document.getElementsByClassName('list-item');
                 for (var i = 0, l = old.length; i < l; i++){
                     item = old[i];
                     order.push(item.children[0].children[0].innerText);
@@ -94,7 +94,7 @@
                             }
                         }
                     }
-                    old = document.getElementsByClassName('container-fluid');
+                    old = document.getElementsByClassName('list-item');
                     for (var i = 0, l = old.length; i < l; i++){
                         item = old[i];
                         if (seen.indexOf(item.getAttribute('id')) === -1){
