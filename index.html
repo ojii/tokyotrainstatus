@@ -22,7 +22,7 @@
         <div class="alert alert-warning{% if live %} hidden{% endif %}" id="no-connection">No connection, please wait...</div>
         <div id="list">
             {% for info in lines %}
-                <div class="row" id="{{  info.id }}">
+                <div class="container-fluid" id="{{  info.id }}">
                     <div class="col-md-12">
                         <h2 id="{{ info.id }}-name">
                             {{ info.line_en }}
