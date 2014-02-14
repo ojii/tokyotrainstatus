@@ -176,6 +176,10 @@ STATUSES = {
     '平常運転': 'Normal operations',
 }
 
+SEVERE = [
+    '運転見合わせ',
+]
+
 
 def _build_static_files(directory):
     for name in os.listdir(directory):
@@ -229,6 +233,7 @@ def _transform(triples):
             'classes': classes,
             'level': level,
             'more': info_tag.text.strip(),
+            'severe': status in SEVERE,
         }
 
 
@@ -349,7 +354,7 @@ class App(object):
             'lines': list(
                 sorted(
                     information,
-                    key=lambda info: (-info['level'], info['line_en'])
+                    key=lambda info: info['line_en']
                 )
             ),
             'updated': now(),

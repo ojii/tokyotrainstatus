@@ -33,7 +33,9 @@
         h2.appendChild(janame);
 
         var status = document.createElement('div');
-        status.setAttribute('class', 'alert alert-danger');
+        status.setAttribute('id', info.id + '-wrapper');
+        var severity = info.severe ? 'danger' : 'warning';
+        status.setAttribute('class', 'alert alert-' + severity);
         wrapper.appendChild(status);
 
         var strong = document.createElement('strong');
@@ -82,6 +84,12 @@
                             ele.innerText = item['status_en'];
                             ele = document.getElementById(item['id'] + '-more');
                             ele.innerText = item['more'];
+                            ele = document.getElementById(item['id'] + '-wrapper');
+                            if (item['severe']){
+                                ele.setAttribute('class', 'alert alert-danger');
+                            } else {
+                                ele.setAttribute('class', 'alert alert-warning');
+                            }
                         } else {
                             ele = template(item);
                             index = find_index(order, item.line_en);
@@ -104,7 +112,7 @@
                 } else {
                     if (data.live){
                         no_issues.setAttribute('class', 'alert alert-success');
-                        no_connection.setAttribute('class', 'alert alert-warning hidden');
+                        no_connection.setAttribute('class', 'alert alert-warning hidd   en');
                     } else {
                         no_connection.setAttribute('class', 'alert alert-warning');
                         no_issues.setAttribute('class', 'alert alert-success hidden');

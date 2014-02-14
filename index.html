@@ -32,7 +32,7 @@
                             {{ info.line_en }}
                             <small>{{ info.line }}</small>
                         </h2>
-                        <div class="alert alert-danger">
+                        <div id="{{ info.id }}-wrapper" class="alert alert-{% if info.severe %}danger{% else %}warning{% endif %}">
                             <strong id="{{ info.id }}-status">{{ info.status_en }}</strong>
                             <small id="{{ info.id }}-more">{{ info.more }}</small>
                         </div>
