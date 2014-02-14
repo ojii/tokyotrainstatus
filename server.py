@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+import datetime
+from functools import partial
+import json
+import logging
 from collections import namedtuple
 import mimetypes
 from aiohttp import HttpErrorException, Response, request
@@ -8,12 +12,17 @@ from bs4 import BeautifulSoup
 import hashlib
 from jinja2 import Template
 import os
+import pytz
 
 
 Information = namedtuple(
     'Information',
     'id line line_en status status_en classes level more'
 )
+
+
+TIMEZONE = pytz.timezone('Asia/Tokyo')
+now = lambda: datetime.datetime.now(TIMEZONE).strftime('%H:%M:%S %Y-%m-%d')
 
 
 LINES = {
@@ -237,6 +246,7 @@ class HttpServer(ServerHttpProtocol):
 
     @asyncio.coroutine
     def handle_request(self, message, payload):
+        logging.info("{} {}".format(message.method, message.path))
         path = message.path
 
         if path in self.app.static_files:
@@ -256,7 +266,11 @@ class HttpServer(ServerHttpProtocol):
         self._send(self.app.index_page_length, self.app.index_page_html)
 
     def _update(self):
-        raise NotImplementedError()
+        self._send(
+            self.app.update_json_length,
+            self.app.update_json,
+            'application/json'
+        )
 
     def _send(self, length, content, content_type='text/html'):
         response = Response(self.transport, 200)
@@ -271,20 +285,28 @@ class HttpServer(ServerHttpProtocol):
 
 class App(object):
     url = 'http://transit.loco.yahoo.co.jp/traininfo/area/4/'
-    _index_page_html = 'Restarting...'
+    _index_page_html = 'Restarting...'.encode('utf8')
     index_page_length = len(_index_page_html)
+    _update_json = json.dumps({'lines': [], 'updated': now()}).encode('utf8')
+    update_json_length = len(_update_json)
+    update_speed = 30
 
     def __init__(self, template_path, static_dir):
         self.event_loop = asyncio.get_event_loop()
 
+        self.troubled_lines = {
+            'lines': [],
+            'updated': now(),
+        }
+
         with open(template_path, 'r') as file_obj:
             self.template = Template(file_obj.read())
-        self.index_page_html = self.template.render()
+        self.index_page_html = self.template.render(**self.troubled_lines)
 
         self.static_files = {}
         for path, data in _build_static_files(static_dir):
             rel_path = os.path.relpath(path, static_dir)
-            self.static_files['/{}'.format(rel_path)] = data
+            self.static_files['/static/{}'.format(rel_path)] = data
 
     def run(self, host, port):
         self.event_loop.run_until_complete(
@@ -294,8 +316,8 @@ class App(object):
                 port
             )
         )
-        print('Running on {}:{}'.format(host, port))
-        self.event_loop.run_until_complete(self.update_index_loop())
+        logging.info('Running on {}:{}'.format(host, port))
+        self.event_loop.run_until_complete(self.update_loop())
         try:
             self.event_loop.run_forever()
         except KeyboardInterrupt:
@@ -310,28 +332,51 @@ class App(object):
         self._index_page_html = value.encode('utf8')
         self.index_page_length = len(self._index_page_html)
 
-    @asyncio.coroutine
-    def update_index_loop(self):
-        yield from self._update_index()
-        self.event_loop.call_later(60, self.update_index_loop)
+    @property
+    def update_json(self):
+        return self._update_json
+
+    @update_json.setter
+    def update_json(self, value):
+        self._update_json = value.encode('utf8')
+        self.update_json_length = len(self._update_json)
 
     @asyncio.coroutine
-    def _update_index(self):
+    def update_loop(self):
+        logging.info("Starting update of information")
         response = yield from request('GET', self.url)
         data = yield from response.read()
         response.close()
         soup = BeautifulSoup(data)
         raw_triples = _group(soup.select('table.trouble-list tr td'), 3)
         information = _transform(raw_triples)
-        self.index_page_html = self.template.render(
-            data=sorted(
-                information,
-                key=lambda info: (-info.level, info.line_en)
-            )
+
+        self.troubled_lines = {
+            'lines': list(
+                sorted(
+                    information,
+                    key=lambda info: (-info.level, info.line_en)
+                )
+            ),
+            'updated': now()
+        }
+
+        self.index_page_html = self.template.render(**self.troubled_lines)
+        self.update_json = json.dumps({
+            'lines': [
+                line._asdict() for line in self.troubled_lines['lines']
+            ],
+            'updated': self.troubled_lines['updated'],
+        })
+        logging.info("Update complete")
+        self.event_loop.call_later(
+            self.update_speed,
+            partial(asyncio.async, self.update_loop(), loop=self.event_loop)
         )
 
 
 def run():
+    logging.basicConfig(level=logging.INFO)
     this_dir = os.path.abspath(os.path.dirname(__file__))
     template_path = os.path.join(this_dir, 'index.html')
     static_dir = os.path.join(this_dir, 'static')
