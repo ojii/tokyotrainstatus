@@ -18,20 +18,21 @@
     </head>
     <body>
         <h1>Troubled Tokyo Train Lines <small id="update-time">{{ updated }}</small></h1>
+        <div class="alert alert-success hidden" id="no-issues">No issues reported</div>
+        <div class="alert alert-warning" id="no-connection">No connection, please wait...</div>
         <div id="list">
             {% for info in lines %}
                 <div class="row" id="{{  info.id }}">
-                    <div class="col-md-4">
+                    <div class="col-md-12">
                         <h2 id="{{ info.id }}-name">
                             {{ info.line_en }}
                         </h2>
+                        <div class="alert alert-danger">
+                            <strong id="{{ info.id }}-status">{{ info.status_en }}</strong>
+                            <small id="{{ info.id }}-more">{{ info.more }}</small>
+                        </div>
                     </div>
-                    <div class="col-md-4"><strong id="{{ info.id }}-status">{{ info.status_en }}</strong></div>
-                    <div class="col-md-4"><small id="{{ info.id }}-more">{{ info.more }}</small></div>
                 </div>
-            {% if not loop.last %}<hr />{% endif %}
-            {% else %}
-                No information available at this moment, sorry.
             {% endfor %}
         </div>
         <script src="/static/autorefresh.js" type="text/javascript"></script>

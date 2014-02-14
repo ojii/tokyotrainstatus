@@ -3,7 +3,6 @@ import datetime
 from functools import partial
 import json
 import logging
-from collections import namedtuple
 import mimetypes
 from aiohttp import HttpErrorException, Response, request
 from aiohttp.server import ServerHttpProtocol
@@ -13,12 +12,6 @@ import hashlib
 from jinja2 import Template
 import os
 import pytz
-
-
-Information = namedtuple(
-    'Information',
-    'id line line_en status status_en classes level more'
-)
 
 
 TIMEZONE = pytz.timezone('Asia/Tokyo')
@@ -227,16 +220,16 @@ def _transform(triples):
         status_en = STATUSES.get(status, status)
         classes = status_tag.span['class'] if status_tag.span else []
         level = _classes_to_level(classes)
-        yield Information(
-            _hash(line),
-            line,
-            line_en,
-            status,
-            status_en,
-            classes,
-            level,
-            info_tag.text.strip()
-        )
+        yield {
+            'id': _hash(line),
+            'line': line,
+            'line_en': line_en,
+            'status': status,
+            'status_en': status_en,
+            'classes': classes,
+            'level': level,
+            'more': info_tag.text.strip(),
+        }
 
 
 class HttpServer(ServerHttpProtocol):
@@ -297,6 +290,7 @@ class App(object):
         self.troubled_lines = {
             'lines': [],
             'updated': now(),
+            'live': False,
         }
 
         with open(template_path, 'r') as file_obj:
@@ -355,19 +349,15 @@ class App(object):
             'lines': list(
                 sorted(
                     information,
-                    key=lambda info: (-info.level, info.line_en)
+                    key=lambda info: (-info['level'], info['line_en'])
                 )
             ),
-            'updated': now()
+            'updated': now(),
+            'live': True
         }
 
         self.index_page_html = self.template.render(**self.troubled_lines)
-        self.update_json = json.dumps({
-            'lines': [
-                line._asdict() for line in self.troubled_lines['lines']
-            ],
-            'updated': self.troubled_lines['updated'],
-        })
+        self.update_json = json.dumps(self.troubled_lines)
         logging.info("Update complete")
         self.event_loop.call_later(
             self.update_speed,
