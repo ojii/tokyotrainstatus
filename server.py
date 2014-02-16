@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from raven.base import Client
+client = Client()
 import datetime
 from functools import partial
 import json
@@ -384,3 +386,4 @@ def run():
 
 if __name__ == '__main__':
     run()
+
