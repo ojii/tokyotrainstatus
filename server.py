@@ -31,7 +31,7 @@ LINES = {
     'ニューシャトル': 'New Shuttle',
     'ブルーライン': 'Blue Line',
     'ユーカリが丘線': 'Yukarigaoka-sen',
-    '上越線[高崎～水上]': 'Joetsu Line [Takasaki - Water]',
+    '上越線[高崎～水上]': 'Joetsu Line [Takasaki - Minakami]',
     '両毛線': 'Ryomo Line',
     '中央本線[高尾～大月]': 'Chuo Line [Takao - Otsuki]',
     '中央総武線(各停)': 'Chuo Sobu (Local)',
