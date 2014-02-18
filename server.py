@@ -178,6 +178,10 @@ STATUSES = {
     '平常運転': 'Normal operations',
 }
 
+REASONS = {
+    '大雪災害の影響で': 'due to heavy snow',
+}
+
 SEVERE = [
     '運転見合わせ',
 ]
@@ -215,6 +219,13 @@ def _classes_to_level(classes):
         return 0
 
 
+def _reason(ja):
+    for key, value in REASONS.items():
+        if ja.startswith(key):
+            return value
+    return ja
+
+
 def _transform(triples):
     for triple in triples:
         line_tag, status_tag, info_tag = triple
@@ -235,6 +246,7 @@ def _transform(triples):
             'classes': classes,
             'level': level,
             'more': info_tag.text.strip(),
+            'reason': _reason(info_tag.text.strip()),
             'severe': status in SEVERE,
         }
 

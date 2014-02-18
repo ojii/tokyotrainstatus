@@ -45,7 +45,7 @@
 
         var small = document.createElement('small');
         small.setAttribute('id', info.id + '-more');
-        small.innerText = info.more;
+        small.innerText = info.reason;
         status.appendChild(small);
 
         return row;
@@ -83,7 +83,7 @@
                         if (ele){
                             ele.innerText = item['status_en'];
                             ele = document.getElementById(item['id'] + '-more');
-                            ele.innerText = item['more'];
+                            ele.innerText = item['reason'];
                             ele = document.getElementById(item['id'] + '-wrapper');
                             if (item['severe']){
                                 ele.setAttribute('class', 'alert alert-danger');
