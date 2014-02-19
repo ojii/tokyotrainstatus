@@ -6,7 +6,7 @@ from functools import partial
 import json
 import logging
 import mimetypes
-from aiohttp import HttpErrorException, Response, request
+from aiohttp import HttpErrorException, Response, request, websocket, EofStream
 from aiohttp.server import ServerHttpProtocol
 import asyncio
 from bs4 import BeautifulSoup
@@ -258,6 +258,19 @@ class HttpServer(ServerHttpProtocol):
 
     @asyncio.coroutine
     def handle_request(self, message, payload):
+        upgrade = False
+        for hdr, val in message.headers:
+            if hdr == 'UPGRADE':
+                upgrade = 'websocket' in val.lower()
+                break
+
+        if upgrade:
+            yield from self._handle_websocket(message, payload)
+        else:
+            yield from self._handle_http(message, payload)
+
+    @asyncio.coroutine
+    def _handle_http(self, message, payload):
         logging.info("{} {}".format(message.method, message.path))
         path = message.path
 
@@ -270,6 +283,39 @@ class HttpServer(ServerHttpProtocol):
             return self._update()
         else:
             raise HttpErrorException(404)
+
+    @asyncio.coroutine
+    def _handle_websocket(self, message, payload):
+        # websocket handshake
+        logging.info("WS Connect")
+        status, headers, parser, writer = websocket.do_handshake(
+            message.method, message.headers, self.transport)
+
+        resp = Response(self.transport, status)
+        resp.add_headers(*headers)
+        resp.send_headers()
+
+        # install websocket parser
+        dataqueue = self.stream.set_parser(parser)
+
+        # notify everybody
+        self.app.websockets.append(writer)
+
+        # chat dispatcher
+        while True:
+            try:
+                msg = yield from dataqueue.read()
+            except EofStream:
+                # client droped connection
+                break
+            if msg.tp == websocket.MSG_PING:
+                writer.pong()
+            elif msg.tp == websocket.MSG_CLOSE:
+                break
+
+        # notify everybody
+        logging.info("WS Disconnect")
+        self.app.websockets.remove(writer)
 
     def _serve_static(self, path):
         self._send(*self.app.static_files[path])
@@ -305,6 +351,8 @@ class App(object):
 
     def __init__(self, template_path, static_dir):
         self.event_loop = asyncio.get_event_loop()
+
+        self.websockets = []
 
         self.troubled_lines = {
             'lines': [],
@@ -377,6 +425,8 @@ class App(object):
 
         self.index_page_html = self.template.render(**self.troubled_lines)
         self.update_json = json.dumps(self.troubled_lines)
+        for socket in self.websockets:
+            socket.send(self.update_json)
         logging.info("Update complete")
         self.event_loop.call_later(
             self.update_speed,
@@ -398,4 +448,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-

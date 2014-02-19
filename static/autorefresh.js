@@ -60,71 +60,82 @@
         return -1;
     }
 
-    function update(){
+    function _update(data){
         var data, ele, old, item, index;
         var seen = [];
         var order = [];
+        old = document.getElementsByClassName('list-item');
+        for (var i = 0, l = old.length; i < l; i++){
+            item = old[i];
+            order.push(item.children[0].children[0].innerText);
+        }
+        if (data.lines.length){
+            no_issues.setAttribute('class', 'alert alert-success hidden');
+            no_connection.setAttribute('class', 'alert alert-warning hidden');
+            for (var i = 0, l = data.lines.length; i < l; i++){
+                item = data.lines[i];
+                ele = document.getElementById(item['id'] + '-status');
+                seen.push(item['id']);
+                if (ele){
+                    ele.innerText = item['status_en'];
+                    ele = document.getElementById(item['id'] + '-more');
+                    ele.innerText = item['reason'];
+                    ele = document.getElementById(item['id'] + '-wrapper');
+                    if (item['severe']){
+                        ele.setAttribute('class', 'alert alert-danger');
+                    } else {
+                        ele.setAttribute('class', 'alert alert-warning');
+                    }
+                } else {
+                    ele = template(item);
+                    index = find_index(order, item.line_en);
+                    if (index === -1){
+                        order.push(item.line_en);
+                        list.appendChild(ele);
+                    } else{
+                        order.insert(index, item.line_en);
+                        list.insertChildAfter(document.getElementsByClassName('list-item')[index], ele);
+                    }
+                }
+            }
+            old = document.getElementsByClassName('list-item');
+            for (var i = 0, l = old.length; i < l; i++){
+                item = old[i];
+                if (seen.indexOf(item.getAttribute('id')) === -1){
+                    item.remove();
+                }
+            }
+        } else {
+            if (data.live){
+                no_issues.setAttribute('class', 'alert alert-success');
+                no_connection.setAttribute('class', 'alert alert-warning hidd   en');
+            } else {
+                no_connection.setAttribute('class', 'alert alert-warning');
+                no_issues.setAttribute('class', 'alert alert-success hidden');
+            }
+            list.clear();
+        }
+        update_time.innerText = data.updated;
+    }
+
+    function update(){
         var request = new XMLHttpRequest();
         request.onreadystatechange = function(){
             if (request.readyState === 4 && request.status === 200) {
-                old = document.getElementsByClassName('list-item');
-                for (var i = 0, l = old.length; i < l; i++){
-                    item = old[i];
-                    order.push(item.children[0].children[0].innerText);
-                }
-                data = JSON.parse(request.responseText);
-                if (data.lines.length){
-                    no_issues.setAttribute('class', 'alert alert-success hidden');
-                    no_connection.setAttribute('class', 'alert alert-warning hidden');
-                    for (var i = 0, l = data.lines.length; i < l; i++){
-                        item = data.lines[i];
-                        ele = document.getElementById(item['id'] + '-status');
-                        seen.push(item['id']);
-                        if (ele){
-                            ele.innerText = item['status_en'];
-                            ele = document.getElementById(item['id'] + '-more');
-                            ele.innerText = item['reason'];
-                            ele = document.getElementById(item['id'] + '-wrapper');
-                            if (item['severe']){
-                                ele.setAttribute('class', 'alert alert-danger');
-                            } else {
-                                ele.setAttribute('class', 'alert alert-warning');
-                            }
-                        } else {
-                            ele = template(item);
-                            index = find_index(order, item.line_en);
-                            if (index === -1){
-                                order.push(item.line_en);
-                                list.appendChild(ele);
-                            } else{
-                                order.insert(index, item.line_en);
-                                list.insertChildAfter(document.getElementsByClassName('list-item')[index], ele);
-                            }
-                        }
-                    }
-                    old = document.getElementsByClassName('list-item');
-                    for (var i = 0, l = old.length; i < l; i++){
-                        item = old[i];
-                        if (seen.indexOf(item.getAttribute('id')) === -1){
-                            item.remove();
-                        }
-                    }
-                } else {
-                    if (data.live){
-                        no_issues.setAttribute('class', 'alert alert-success');
-                        no_connection.setAttribute('class', 'alert alert-warning hidd   en');
-                    } else {
-                        no_connection.setAttribute('class', 'alert alert-warning');
-                        no_issues.setAttribute('class', 'alert alert-success hidden');
-                    }
-                    list.clear();
-                }
-                update_time.innerText = data.updated;
+                _update(JSON.parse(request.responseText));
                 setTimeout(update, 10000);
             }
         }
         request.open('GET', '/update');
         request.send();
     };
-    setTimeout(update, 10000);
+    if (window.WebSocket){
+        var socket = new WebSocket('ws://' + window.location.host + window.location.pathname + ':' + window.location.port);
+        socket.onmessage = function(event){
+            _update(JSON.parse(event.data));
+        };
+
+    } else {
+        setTimeout(update, 10000);
+    }
 })();
