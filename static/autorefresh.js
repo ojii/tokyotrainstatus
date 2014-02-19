@@ -130,7 +130,8 @@
         request.send();
     };
     if (window.WebSocket){
-        var socket = new WebSocket('ws://' + window.location.host + window.location.pathname + ':' + window.location.port);
+        var protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        var socket = new WebSocket(protocol + '://' + window.location.host + window.location.pathname + ':' + window.location.port);
         socket.onmessage = function(event){
             _update(JSON.parse(event.data));
         };
