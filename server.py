@@ -176,10 +176,13 @@ STATUSES = {
     '運転見合わせ': 'Operations temporarily suspended',
     '運転状況': 'Delays and cancellations',
     '平常運転': 'Normal operations',
+    '運転再開': 'Preparing to resume operations',
 }
 
 REASONS = {
     '大雪災害の影響で': 'due to heavy snow',
+    '台風': 'due to typhoon',
+    '大雨': 'due to heavy rain',
 }
 
 SEVERE = [
