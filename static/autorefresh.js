@@ -8,7 +8,6 @@
         }
     };
 
-
     var update_time = document.getElementById('update-time');
     var list = document.getElementById('list');
     var no_issues = document.getElementById('no-issues');
@@ -126,17 +125,37 @@
                 setTimeout(update, 10000);
             }
         }
+        request.onerror = function(){
+            reconnect();
+        };
         request.open('GET', '/update');
         request.send();
     };
-    if (window.WebSocket){
-        var protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        var socket = new WebSocket(protocol + '://' + window.location.host + window.location.pathname + ':' + window.location.port);
-        socket.onmessage = function(event){
-            _update(JSON.parse(event.data));
-        };
 
-    } else {
-        setTimeout(update, 10000);
+    function connect(){
+        if (window.WebSocket){
+            var protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+            var socket = new WebSocket(protocol + '://' + window.location.host + window.location.pathname + ':' + window.location.port);
+            socket.onmessage = function(event){
+                _update(JSON.parse(event.data));
+            };
+
+            socket.onclose = function(event){
+                reconnect();
+            };
+
+            socket.onerror = function(event){
+                reconnect();
+            };
+        } else {
+            setTimeout(update, 10000);
+        }
     }
+
+    function reconnect(){
+        update_time.innerText = 'Reconnecting...';
+        setTimeout(connect, 10000);
+    }
+
+    connect();
 })();
