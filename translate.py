@@ -18,8 +18,10 @@ REASONS = {
                                               'between {from} and {to}',
     c(r'(?P<line>\w+)線内で踏切内点検を'): 'due to inspection on the {line} '
                                   'line',
-    c(r'\d{2}:\d{2}頃、(?P<station>\w+)駅で発生し'): 'due to problems near '
-                                              '{station} station'
+    c(r'\d{1,2}:\d{2}頃、(?P<station>\w+)駅で発生し'): 'due to problems near '
+                                              '{station} station',
+    c(r'\d{1,2}:\d{2}頃、(?P<from>\w+)～(?P<to>\w+)駅…$'): 'between {from} '
+                                              'and {to} station',
 }
 
 SEVERE = {
