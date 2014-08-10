@@ -22,7 +22,7 @@ REASONS = {
                                               '{station} station',
     c(r'\d{1,2}:\d{2}頃、(?P<from>\w+)～(?P<to>\w+)駅…$'): 'between {from} '
                                               'and {to} station',
-    c(r'強風の影響で、': 'due to strong winds'),
+    c(r'強風の影響で、'): 'due to strong winds',
 }
 
 SEVERE = {
