@@ -107,7 +107,7 @@
         } else {
             if (data.live){
                 no_issues.setAttribute('class', 'alert alert-success');
-                no_connection.setAttribute('class', 'alert alert-warning hidd   en');
+                no_connection.setAttribute('class', 'alert alert-warning hidden');
             } else {
                 no_connection.setAttribute('class', 'alert alert-warning');
                 no_issues.setAttribute('class', 'alert alert-success hidden');
