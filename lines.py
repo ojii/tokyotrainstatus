@@ -66,6 +66,8 @@ LINES = {
     '常磐線[勝田～いわき]': 'Joban Line [Katsuta - Iwaki]',
     '常磐線[取手～土浦]': 'Joban Line [Toride-Tsuchiura]',
     '常磐線[土浦～勝田]': 'Joban Line [Tsuchiura - Katsuta]',
+    '常磐線[上野～水戸]': 'Joban Line [Ueno-Mito]',
+    '常磐線[水戸～いわき]': 'Joban Line [Mito-Iwaki]',
     '成田スカイアクセス': 'Narita Sky Access Line',
     '成田線[佐倉～成田空港・銚子]': 'Narita Line [Sakura-Narita/Choshi]',
     '成田線[我孫子～成田]': 'Narita Line [Abiko-Narita]',
@@ -145,5 +147,12 @@ LINES = {
     '青梅線[青梅～奥多摩]': 'Ome Line [Ome - Okutama]',
     '高崎線': 'Takasaki Line',
     '鶴見線': 'Tsurumi Line',
-    '鹿島線': 'Kashima Line'
+    '鹿島線': 'Kashima Line',
+    'わたらせ渓谷線': 'Watarase Keikoku Line',
+    '上信電鉄上信線': 'Joshin Line',
+    '上毛電鉄上毛線': 'Jomo Line',
+    '上野東京ライン': 'Ueno-Tokyo Line',
+    '大洗鹿島線': 'Oarai Kashima Line',
+    '真岡鉄道真岡線': 'Mooka Line',
+    '京急線': 'Tokyu Lines',
 }

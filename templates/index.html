@@ -19,7 +19,7 @@
             <div class="col-md-12">
                 <h1>Troubled Tokyo Train Lines <small id="update-time">{{ updated }}</small></h1>
                 <p><a href="https://github.com/ojii/tokyotrainstatus/issues/new">Improve this site</a> by suggesting better translations</p>
-                <div class="alert alert-success{% if lines %} hidden{% endif %}" id="no-issues">No issues reported</div>
+                <div class="alert alert-success{% if not live and lines %} hidden{% endif %}" id="no-issues">No issues reported</div>
                 <div class="alert alert-warning{% if live %} hidden{% endif %}" id="no-connection">No connection, please wait...</div>
             </div>
         </div>

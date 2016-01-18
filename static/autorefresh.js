@@ -12,6 +12,7 @@
     var list = document.getElementById('list');
     var no_issues = document.getElementById('no-issues');
     var no_connection = document.getElementById('no-connection');
+    var reconnecting = null;
 
     function template(info){
         var row = document.createElement('div');
@@ -133,9 +134,10 @@
     };
 
     function connect(){
+        reconnecting = null;
         if (window.WebSocket){
             var protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-            var socket = new WebSocket(protocol + '://' + window.location.host + window.location.pathname + ':' + window.location.port);
+            var socket = new WebSocket(protocol + '://' + window.location.host + '/ws/');
             socket.onmessage = function(event){
                 _update(JSON.parse(event.data));
             };
@@ -153,8 +155,11 @@
     }
 
     function reconnect(){
+        if (reconnecting !== null){
+            return;
+        }
         update_time.innerText = 'Reconnecting...';
-        setTimeout(connect, 10000);
+        reconnecting = setTimeout(connect, 10000);
     }
 
     connect();
