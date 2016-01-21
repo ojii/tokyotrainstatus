@@ -54,6 +54,8 @@ REASONS = {
     c(r'(?P<station>\w+)駅で発生した架線支障'): (
         'due to overhead wire troubles at {station} station'
     ),
+    c(r'除雪作業の影響で'): 'due to snow removal',
+    c(r'車両故障の影響で'): 'due to vehicle malfunction',
 }
 
 SEVERE = {
