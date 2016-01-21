@@ -32,7 +32,7 @@ def _hash(name):
 def _status_to_level(status):
     if status == '運転見合わせ':
         return 2
-    elif status != '平常運転	':
+    elif status != '平常運転':
         return 1
     else:
         return 0
