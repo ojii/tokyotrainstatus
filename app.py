@@ -2,16 +2,16 @@ import datetime
 import hashlib
 import json
 import logging
-
 import asyncio
 import os
+from typing import *
 
 import aiohttp
 import aiohttp_jinja2
 import jinja2
 import pytz
 from aiohttp import web
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 import translate
 
@@ -21,15 +21,15 @@ TIMEZONE = pytz.timezone('Asia/Tokyo')
 now = lambda: datetime.datetime.now(TIMEZONE).strftime('%H:%M:%S %Y-%m-%d')
 
 
-def _group(lst, n):
+def _group(lst: List[Any], n: int) -> Iterator[List[Any]]:
     return zip(*[lst[i::n] for i in range(n)])
 
 
-def _hash(name):
+def _hash(name: str) -> str:
     return 'line-{}'.format(hashlib.md5(name.encode('utf8')).hexdigest())
 
 
-def _status_to_level(status):
+def _status_to_level(status: str) -> int:
     if status == '運転見合わせ':
         return 2
     elif status != '平常運転':
@@ -38,7 +38,7 @@ def _status_to_level(status):
         return 0
 
 
-def _transform(triples):
+def _transform(triples: Tuple[Tag, Tag, Tag]) -> Iterator[Dict[str, Union[str, int, bool]]]:
     for triple in triples:
         line_tag, status_tag, info_tag = triple
         line = line_tag.a.text
@@ -64,7 +64,7 @@ def _transform(triples):
 
 
 @aiohttp_jinja2.template('index.html')
-async def index(request: web.Request) -> dict:
+async def index(request: web.Request) -> Dict[str, Any]:
     return request.app['data']
 
 
@@ -92,7 +92,7 @@ async def websocket(request: web.Request) -> web.WebSocketResponse:
     return ws
 
 
-async def get_info(url: str) -> dict:
+async def get_info(url: str) -> List[Dict[str, str]]:
     response = await aiohttp.get(url)
     logging.info("Got response")
     data = await response.text()
@@ -141,9 +141,10 @@ async def loop(app: web.Application):
                 break
             await asyncio.sleep(1)
 
+TView = Callable[[web.Request], web.Response]
 
-async def logging_middleware_factory(app: web.Application, handler):
-    async def logging_middleware(request: web.Request):
+async def logging_middleware_factory(app: web.Application, handler: TView) -> TView:
+    async def logging_middleware(request: web.Request) -> web.Response:
         logging.info('{request.method} {request.path}'.format(request=request))
         return await handler(request)
     return logging_middleware
